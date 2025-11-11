@@ -22,7 +22,6 @@ services:
     # The python service will be started from its subfolder so it finds its own
     # requirements and entrypoint.
     healthCheckPath: /health
-
-# Note: Do NOT include secrets in this file. Add required environment variables
-# (MONGODB_URI, JWT_SECRET, GEMINI_API_KEY, BACKEND_API_KEY, etc.) in the
-# Render dashboard for each service after creation.
+# Note: Environment variables have been removed from this file for security.
+# Add required secrets (MONGODB_URI, JWT_SECRET, GEMINI_API_KEY, BACKEND_API_KEY,
+# FRONTEND_URL, etc.) in the Render dashboard per-service.

@@ -105,6 +105,8 @@ const routes = [
   'navigation',
   'helpdesk',
   'voiceChat',
+  'pythonAgents',  // ⭐ NEW: Python AI Service Integration
+  // Legacy routes (deprecated, use pythonAgents instead):
   'agenticAI',
   'agenticFeatures',
   'adminAgenticFeatures',
@@ -185,3 +187,4 @@ mongoose.connect(MONGODB_URI)
   });
 
 module.exports = app;
+

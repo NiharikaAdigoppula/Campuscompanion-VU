@@ -4,6 +4,8 @@ const { auth } = require('../middleware/auth');
 const trueAgenticAI = require('../utils/trueAgenticAI');
 const agenticAICore = require('../utils/agenticAICore');
 const User = require('../models/User');
+const Timetable = require('../models/Timetable');
+const advancedAI = require('../utils/advancedAI');
 const AgenticPlan = require('../models/AgenticPlan');
 const AgenticTest = require('../models/AgenticTest');
 const AgenticNotification = require('../models/AgenticNotification');
@@ -358,8 +360,8 @@ router.post('/collaborate', auth, async (req, res) => {
       }
     };
 
-    // Use agentic AI for collaborative processing
-    const result = await agenticAI.collaborativeProcess(
+    // Use agenticAICore for collaborative processing
+    const result = await agenticAICore.collaborativeProcess(
       query,
       context,
       req.userId.toString()

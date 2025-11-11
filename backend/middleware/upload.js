@@ -9,6 +9,8 @@ if (!fs.existsSync(uploadDir)) {
 }
 
 // Configure storage
+const crypto = require('crypto');
+
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
     const subDir = req.uploadType || 'materials';
@@ -21,22 +23,55 @@ const storage = multer.diskStorage({
     cb(null, dir);
   },
   filename: function (req, file, cb) {
-    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
-    cb(null, file.fieldname + '-' + uniqueSuffix + path.extname(file.originalname));
+    // Generate a cryptographically-secure random filename and preserve a safe extension
+    const ext = path.extname(file.originalname).toLowerCase();
+
+    // Whitelist of allowed extensions to avoid trusting user input
+    const allowedExt = ['.pdf', '.doc', '.docx', '.ppt', '.pptx', '.txt', '.jpg', '.jpeg', '.png', '.gif'];
+    const safeExt = allowedExt.includes(ext) ? ext : '.bin';
+
+    const randomName = crypto.randomBytes(16).toString('hex');
+    const filename = `${randomName}${safeExt}`;
+
+    cb(null, filename);
   }
 });
 
 // File filter
 const fileFilter = (req, file, cb) => {
-  const allowedTypes = /pdf|doc|docx|ppt|pptx|txt|jpg|jpeg|png|gif/;
-  const extname = allowedTypes.test(path.extname(file.originalname).toLowerCase());
-  const mimetype = allowedTypes.test(file.mimetype);
+  // Stronger checks: explicit extension and mimetype mapping
+  const ext = path.extname(file.originalname).toLowerCase();
 
-  if (extname && mimetype) {
-    return cb(null, true);
-  } else {
-    cb(new Error('Invalid file type. Only documents and images are allowed.'));
+  const mimetypeMap = {
+    '.pdf': 'application/pdf',
+    '.doc': 'application/msword',
+    '.docx': 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+    '.ppt': 'application/vnd.ms-powerpoint',
+    '.pptx': 'application/vnd.openxmlformats-officedocument.presentationml.presentation',
+    '.txt': 'text/plain',
+    '.jpg': 'image/jpeg',
+    '.jpeg': 'image/jpeg',
+    '.png': 'image/png',
+    '.gif': 'image/gif'
+  };
+
+  const expectedMime = mimetypeMap[ext];
+
+  if (!expectedMime) {
+    return cb(new Error('Invalid file extension.'));
   }
+
+  // Some clients/OS may send slightly different mimetypes; check prefix for images
+  if (expectedMime.startsWith('image/')) {
+    if (!file.mimetype.startsWith('image/')) {
+      return cb(new Error('Invalid image mimetype.'));
+    }
+  } else if (file.mimetype !== expectedMime) {
+    return cb(new Error('Mimetype does not match file extension.'));
+  }
+
+  // Passed basic checks
+  cb(null, true);
 };
 
 const upload = multer({

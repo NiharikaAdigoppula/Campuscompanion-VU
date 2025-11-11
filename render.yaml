@@ -1,0 +1,26 @@
+services:
+  - type: web
+    name: campus-companion-backend
+    env: node
+    branch: main
+    plan: free
+    autoDeploy: true
+    buildCommand: cd backend && npm install
+    startCommand: cd backend && npm start
+    # Render will run these commands from the repository root; the 'cd backend' ensures
+    # the Node service runs where `backend/package.json` lives.
+
+  - type: web
+    name: campus-companion-python-ai
+    env: python
+    branch: main
+    plan: free
+    autoDeploy: true
+    buildCommand: pip install -r python-ai-service/requirements.txt
+    startCommand: cd python-ai-service && python main.py
+    # The python service will be started from its subfolder so it finds its own
+    # requirements and entrypoint.
+
+# Note: Do NOT include secrets in this file. Add required environment variables
+# (MONGODB_URI, JWT_SECRET, GEMINI_API_KEY, BACKEND_API_KEY, etc.) in the
+# Render dashboard for each service after creation.
